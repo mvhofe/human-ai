@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Text Humanizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 1rem;
+            min-height: 150px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .output-container {
+            margin-top: 20px;
+        }
+        #loadingIndicator {
+            text-align: center;
+            color: #777;
+            display: none;
+            margin-top: 10px;
+        }
+        .error-message {
+            color: #e74c3c;
+            background-color: #fdd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Academic Text Humanizer</h1>
+        <p class="subtitle">Refine AI-generated text for your ESMT Berlin Global Management Master Thesis.</p>
+
+        <label for="inputText">Original Text:</label>
+        <textarea id="inputText" placeholder="Paste your AI-generated text here..."></textarea>
+
+        <button onclick="submitText()">Humanize for Academic Thesis</button>
+        <div id="loadingIndicator">Processing...</div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="output-container">
+            <label for="outputText">Humanized Text (Academic Style):</label>
+            <textarea id="outputText" readonly placeholder="Your humanized text will appear here..."></textarea>
+        </div>
+         <div class="output-container" id="analysisSection" style="display: none;">
+            <label for="analysisOutput">Analysis of Original Text:</label>
+            <textarea id="analysisOutput" readonly placeholder="Analysis details will appear here..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        async function submitText() {
+            const inputText = document.getElementById("inputText").value;
+            const outputTextarea = document.getElementById("outputText");
+            const analysisTextarea = document.getElementById("analysisOutput");
+            const analysisSection = document.getElementById("analysisSection");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+            const errorMessageDiv = document.getElementById("errorMessage");
+
+            outputTextarea.value = ""; // Clear previous output
+            analysisTextarea.value = "";
+            analysisSection.style.display = "none";
+            errorMessageDiv.style.display = "none";
+            errorMessageDiv.textContent = "";
+
+            if (!inputText.trim()) {
+                errorMessageDiv.textContent = "Please enter some text to humanize.";
+                errorMessageDiv.style.display = "block";
+                return;
+            }
+
+            loadingIndicator.style.display = "block";
+
+            try {
+                const response = await fetch("/api/humanize", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        text: inputText,
+                        style: "academic", // Hardcoded to academic style as per requirement
+                        lexical_sub_rate: 0.1 // Default for academic, can be made configurable
+                    }),
+                });
+
+                loadingIndicator.style.display = "none";
+                const result = await response.json();
+
+                if (response.ok) {
+                    outputTextarea.value = result.humanized_text;
+                    if (result.original_analysis) {
+                        let analysisStr = "";
+                        for (const [key, value] of Object.entries(result.original_analysis)) {
+                            analysisStr += `${key}: ${JSON.stringify(value, null, 2)}\n\n`;
+                        }
+                        analysisTextarea.value = analysisStr.trim();
+                        analysisSection.style.display = "block";
+                    }
+                } else {
+                    errorMessageDiv.textContent = `Error: ${result.error || "An unknown error occurred."}`;
+                    if(result.details) errorMessageDiv.textContent += ` Details: ${result.details}`;
+                    errorMessageDiv.style.display = "block";
+                }
+            } catch (error) {
+                loadingIndicator.style.display = "none";
+                errorMessageDiv.textContent = "A network error occurred. Please try again. Details: " + error.message;
+                errorMessageDiv.style.display = "block";
+                console.error("Error submitting text:", error);
+            }
+        }
+    </script>
+</body>
+</html>
+

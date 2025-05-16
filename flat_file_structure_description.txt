@@ -1,0 +1,63 @@
+# Flat Project File Structure Description
+
+This document describes the files contained in the `flat_humanizer_package` folder. All project files have been placed into this single directory, and filenames have been prefixed to indicate their original location or purpose within the structured Flask application.
+
+## File List and Descriptions:
+
+1.  **`flat_main_flask_app.py`**
+    *   Original Path: `web_humanizer_app/src/main.py`
+    *   Purpose: This is the main entry point for the Flask web application. It initializes the Flask app, registers API blueprints, serves the static frontend (`index.html`), and includes the logic to download NLTK resources upon startup.
+
+2.  **`flat_index_frontend.html`**
+    *   Original Path: `web_humanizer_app/src/static/index.html`
+    *   Purpose: This is the HTML file for the web application's user interface. It contains the text areas for input and output, the button to trigger humanization, and the JavaScript to communicate with the backend API.
+
+3.  **`flat_api_humanizer_routes.py`**
+    *   Original Path: `web_humanizer_app/src/routes/humanizer_api.py`
+    *   Purpose: This Python file defines the Flask blueprint and API endpoint (`/api/humanize`) that receives text from the frontend, passes it to the humanizer logic, and returns the humanized text and analysis.
+
+4.  **`flat_logic_preprocessor.py`**
+    *   Original Path: `web_humanizer_app/src/humanizer_logic/preprocessor.py`
+    *   Purpose: Contains the `TextPreprocessor` class, responsible for initial text processing steps like sentence tokenization, word tokenization, part-of-speech (POS) tagging, and lemmatization using NLTK.
+
+5.  **`flat_logic_analyzer.py`**
+    *   Original Path: `web_humanizer_app/src/humanizer_logic/analyzer.py`
+    *   Purpose: Contains the `AICharacteristicAnalyzer` class, which analyzes preprocessed text for characteristics often found in AI-generated content (e.g., lexical diversity, repetition, sentence length variability).
+
+6.  **`flat_logic_transformer.py`**
+    *   Original Path: `web_humanizer_app/src/humanizer_logic/transformer.py`
+    *   Purpose: Contains the `TransformationEngine` class. This module applies various transformations to the text to make it sound more human-like, including lexical substitution and managing contractions, with specific logic for "default" and "academic" styles.
+
+7.  **`flat_logic_humanizer_class.py`**
+    *   Original Path: `web_humanizer_app/src/humanizer_logic/humanizer.py`
+    *   Purpose: Contains the main `TextHumanizer` class that orchestrates the entire humanization pipeline by using the preprocessor, analyzer, and transformer components. It provides the primary `humanize_text` method called by the API.
+
+8.  **`flat_logic_download_nltk.py`**
+    *   Original Path: `web_humanizer_app/src/humanizer_logic/download_resources.py`
+    *   Purpose: This script contains the function `download_nltk_resources_for_app()` which is called by `flat_main_flask_app.py` at startup to ensure all necessary NLTK data packages (like 'punkt', 'wordnet', 'averaged_perceptron_tagger') are downloaded and available.
+
+9.  **`flat_requirements.txt`**
+    *   Original Path: `web_humanizer_app/requirements.txt`
+    *   Purpose: This file lists all the Python package dependencies required to run the application (e.g., Flask, NLTK). It is used with `pip install -r flat_requirements.txt` to set up the environment.
+
+10. **`flat_local_setup_guide.md`**
+    *   Original Path: `web_humanizer_app_local_setup_guide.md` (created in a previous step)
+    *   Purpose: This Markdown file provides detailed step-by-step instructions for setting up and running the web application locally on the user's computer.
+
+11. **`flat_models_user_template.py`**
+    *   Original Path: `web_humanizer_app/src/models/user.py`
+    *   Purpose: This file is part of the standard Flask application template (`create_flask_app`) and would typically contain database models (e.g., for users). It is **not actively used** by the humanizer application but is included for completeness if the user wishes to extend the app with database features later.
+
+12. **`flat_routes_user_template.py`**
+    *   Original Path: `web_humanizer_app/src/routes/user.py`
+    *   Purpose: This file is also part of the standard Flask application template and would typically define API routes related to user management. It is **not actively used** by the humanizer application but is included for completeness.
+
+13. **`flat_src_init.py`**
+    *   Original Path: `web_humanizer_app/src/__init__.py`
+    *   Purpose: An empty `__init__.py` file that marks the `src` directory (in the original structure) as a Python package, allowing modules within it to be imported.
+
+## Important Note on Running the Flat Version:
+
+While these files are now in a flat structure, the Python import statements within the `.py` files (`flat_main_flask_app.py`, `flat_api_humanizer_routes.py`, `flat_logic_humanizer_class.py`) still expect a certain structure or for the modules to be in the Python path. For the application to run correctly from this flat structure without modifying all import statements, you would typically need to ensure that the directory containing these flat files is added to the `PYTHONPATH` environment variable, or run the main script (`flat_main_flask_app.py`) from this directory, and Python's module resolution might find them. 
+
+However, the `flat_local_setup_guide.md` is based on the original structured package. If you intend to run this flat version directly, adjustments to import paths within the Python files or your execution method might be necessary. The primary purpose of this flat package is for easier inspection of individual files as requested.
